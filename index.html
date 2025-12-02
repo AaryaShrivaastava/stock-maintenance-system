@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Stock Maintenance System</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Tailwind CSS CDN (no build step needed) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Optional: basic favicon color -->
+  <meta name="theme-color" content="#4f46e5" />
+</head>
+<body class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
+  <div class="max-w-7xl mx-auto">
+    <!-- Header -->
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 text-2xl">
+            📦
+          </div>
+          <div>
+            <h1 class="text-3xl font-bold text-gray-800">Stock Maintenance System</h1>
+            <p class="text-gray-600">Inventory Management Dashboard</p>
+          </div>
+        </div>
+        <button
+          id="openAddModalBtn"
+          class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg flex items-center gap-2 transition-colors"
+        >
+          <span class="text-xl">＋</span>
+          <span>Add Product</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="bg-white rounded-lg shadow-lg mb-6">
+      <div class="flex border-b">
+        <button
+          id="inventoryTabBtn"
+          data-tab="inventory"
+          class="tab-button px-6 py-4 font-semibold transition-colors border-b-2 border-indigo-600 text-indigo-600"
+        >
+          Inventory
+        </button>
+        <button
+          id="analyticsTabBtn"
+          data-tab="analytics"
+          class="tab-button px-6 py-4 font-semibold transition-colors text-gray-600 hover:text-indigo-600"
+        >
+          Analytics
+        </button>
+      </div>
+    </div>
+
+    <!-- Inventory Tab -->
+    <div id="inventoryTab" class="space-y-6">
+      <!-- Statistics Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+        <div class="bg-white rounded-lg shadow-lg p-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-gray-600 text-sm">Total Products</p>
+              <p id="totalProducts" class="text-3xl font-bold text-gray-800">0</p>
+            </div>
+            <div class="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center text-2xl">
+              📦
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-lg p-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-gray-600 text-sm">Low Stock Alert</p>
+              <p id="lowStockCount" class="text-3xl font-bold text-red-600">0</p>
+            </div>
+            <div class="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center text-2xl">
+              📉
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-lg p-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-gray-600 text-sm">Overstock Items</p>
+              <p id="overstockCount" class="text-3xl font-bold text-orange-600">0</p>
+            </div>
+            <div class="w-12 h-12 rounded-full bg-orange-50 flex items-center justify-center text-2xl">
+              📈
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-lg p-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-gray-600 text-sm">Total Value</p>
+              <p id="totalValue" class="text-3xl font-bold text-green-600">₹0</p>
+            </div>
+            <div class="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center text-2xl">
+              📊
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Search and Filter -->
+      <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+        <div class="flex flex-col md:flex-row gap-4">
+          <div class="flex-1 relative">
+            <span class="w-5 h-5 absolute left-3 top-3 text-gray-400 text-lg">🔍</span>
+            <input
+              id="searchInput"
+              type="text"
+              placeholder="Search by name or SKU..."
+              class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-transparent"
+            />
+          </div>
+          <select
+            id="categoryFilter"
+            class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-transparent"
+          >
+            <!-- options will be populated by JS -->
+          </select>
+        </div>
+      </div>
+
+      <!-- Products Table -->
+      <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SKU</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Supplier</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="productsTableBody" class="bg-white divide-y divide-gray-200">
+              <!-- rows rendered by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Analytics Tab -->
+    <div id="analyticsTab" class="space-y-6 hidden">
+      <!-- Low Stock Alert -->
+      <div class="bg-white rounded-lg shadow-lg p-6">
+        <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+          <span class="text-red-600 text-2xl">⚠️</span>
+          <span>Low Stock Alert</span>
+        </h3>
+        <div id="lowStockList" class="space-y-3">
+          <!-- low stock items rendered by JS -->
+        </div>
+      </div>
+
+      <!-- Category Distribution -->
+      <div class="bg-white rounded-lg shadow-lg p-6">
+        <h3 class="text-xl font-bold text-gray-800 mb-4">Stock by Category</h3>
+        <div id="categoryDistribution" class="space-y-4">
+          <!-- category bars rendered by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div
+    id="productModal"
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden"
+  >
+    <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div class="p-6 border-b">
+        <h2 id="modalTitle" class="text-2xl font-bold text-gray-800">
+          Add New Product
+        </h2>
+      </div>
+      <div class="p-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Product Name</label>
+            <input
+              id="productName"
+              type="text"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-transparent"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">SKU</label>
+            <input
+              id="productSku"
+              type="text"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-transparent"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
+            <select
+              id="productCategory"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-transparent"
+            >
+              <!-- options populated by JS -->
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Quantity</label>
+            <input
+              id="productQuantity"
+              type="number"
+              min="0"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-transparent"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Minimum Stock</label>
+            <input
+              id="productMinStock"
+              type="number"
+              min="0"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-transparent"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Maximum Stock</label>
+            <input
+              id="productMaxStock"
+              type="number"
+              min="0"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-transparent"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Price (₹)</label>
+            <input
+              id="productPrice"
+              type="number"
+              min="0"
+              step="0.01"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-transparent"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Supplier</label>
+            <input
+              id="productSupplier"
+              type="text"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-transparent"
+            />
+          </div>
+        </div>
+        <div class="flex gap-4 mt-6">
+          <button
+            id="submitProductBtn"
+            class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-lg transition-colors"
+          >
+            Add Product
+          </button>
+          <button
+            id="cancelModalBtn"
+            class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 py-2 px-4 rounded-lg transition-colors"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- App logic -->
+  <script src="./assets/script.js"></script>
+</body>
+</html>
